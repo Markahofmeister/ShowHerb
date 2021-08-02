@@ -9,8 +9,8 @@
 #include "Adafruit_seesaw.h"
 
 Adafruit_seesaw ss;
-#define ssp 13
 #define numSensors 1
+uint8_t pinNum;
 
 #define TCAADDR 0x70
 
@@ -27,6 +27,10 @@ void tcaselect(uint8_t addr) {
 
 // standard setup
 void setup() {
+
+  for (int i = 4; i <= (numSensors + 3); i++) {
+    pinMode(i, OUTPUT);
+  }
 
     //begin Serial
     Serial.begin(9600);
@@ -62,19 +66,20 @@ void setup() {
 void loop() 
 {
 
-  int x = 0;
-  //for (uint8_t x = 0; x <= (numSensors - 1); x++) {
-    
-  tcaselect(x);
+  //int x = 0;
+  for (uint8_t x = 0; x <= (numSensors - 1); x++) {
+    pinNum = x + 4;
+    digitalWrite(pinNum, HIGH);
+    tcaselect(x);
 
-  float temp = ss.getTemp();
-  uint16_t capread = ss.touchRead(0);
+    float temp = ss.getTemp();
+    uint16_t capread = ss.touchRead(0);
 
-  Serial.print("Capacitive: "); Serial.println(capread);
-  Serial.print("Temperature: "); Serial.println(temp);
+    Serial.print("Capacitive: "); Serial.println(capread);
+    Serial.print("Temperature: "); Serial.println(temp);
   
 
-  delay(1000);
+    delay(1000);
 
-  //}
+  }
 }
