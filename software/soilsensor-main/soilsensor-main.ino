@@ -2,6 +2,8 @@
  * TCA9548 I2CScanner.ino -- I2C bus scanner for Arduino
  *
  * Based on https://playground.arduino.cc/Main/I2cScanner/
+ * 
+ * Sketch to read Serial outputs for testing purposes 
  *
  */
 
@@ -28,7 +30,8 @@ void tcaselect(uint8_t addr) {
 // standard setup
 void setup() {
 
-  for (int i = 4; i <= (numSensors + 3); i++) {
+  //initialize output pins  
+  for (int i = 5; i <= (numSensors + 4); i++) {
     pinMode(i, OUTPUT);
   }
 
@@ -66,7 +69,6 @@ void setup() {
 void loop() 
 {
 
-  //int x = 0;
   for (uint8_t x = 0; x <= (numSensors - 1); x++) {
     pinNum = x + 4;
     digitalWrite(pinNum, HIGH);
