@@ -26,15 +26,39 @@ void tcaselect(uint8_t addr) {
   Wire.endTransmission();  
 }
 
+//initialize output pins 
+void initOutputPins() {
+  for (int i = 5; i <= (numSensors + 4); i++) {
+    pinMode(i, OUTPUT);
+  }
+}
+
+//Finds active ports and connected I2C addresses 
+void findActivePorts() {
+  
+  for (uint8_t i=0; i<8; i++) {
+      tcaselect(i);
+      Serial.print("TCA Port #"); Serial.println(i);
+
+      for (uint8_t addr = 0; addr <= 127; addr++) {
+        if (addr == TCAADDR) continue;
+
+        Wire.beginTransmission(addr);
+        if (!Wire.endTransmission()) {
+          Serial.print("Found soil sensor at 0x");  Serial.println(addr,HEX);
+        }
+      }
+      
+    }
+}
+
 
 // standard setup
 void setup() {
 
-  //initialize output pins  
-  for (int i = 5; i <= (numSensors + 4); i++) {
-    pinMode(i, OUTPUT);
-  }
-
+    //initialize outputs
+    initOutputPins();  
+  
     //begin Serial
     Serial.begin(9600);
     while (!Serial);
@@ -48,20 +72,9 @@ void setup() {
     Serial.println("\nTCAScanner ready.");
     Serial.println("Soil Sensor(s) ready");
 
-    //Find active ports and connected I2C addresses
-    for (uint8_t i=0; i<8; i++) {
-      tcaselect(i);
-      //Serial.print("TCA Port #"); Serial.println(i);
-
-      for (uint8_t addr = 0; addr <= 127; addr++) {
-        if (addr == TCAADDR) continue;
-
-        Wire.beginTransmission(addr);
-        if (!Wire.endTransmission()) {
-          Serial.print("Found soil sensor at 0x");  Serial.println(addr,HEX);
-        }
-      }
-    }
+    //Find connected I2C addresses
+    findActivePorts(); 
+    
     Serial.println("\ndone");
     
 }
