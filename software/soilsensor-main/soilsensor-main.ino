@@ -90,8 +90,8 @@ void loop()
     float temp = ss.getTemp();
     uint16_t capread = ss.touchRead(0);
 
-    Serial.print("Capacitive: "); Serial.println(capread);
-    Serial.print("Temperature: "); Serial.println(temp);
+    Serial.print("Sensor "); Serial.print(x); Serial.print(" Capacitive: "); Serial.println(capread);
+    Serial.print("Sensor "); Serial.print(x); Serial.print(" Temperature: "); Serial.println(temp);
   
 
     delay(1000);
