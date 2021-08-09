@@ -9,6 +9,7 @@
  uint8_t anInputPin = A0; 
  uint8_t digInput;
  uint16_t anInput; 
+ 
 void setup() {
   
    Serial.begin(9600);
