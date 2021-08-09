@@ -19,7 +19,6 @@ uint8_t relayPin = 16;
 #define TCAADDR 0x70
 
 //photocell variables
-uint8_t photoValue;
 uint8_t photoPin = A0;
 
 //rain Sensor variables 
@@ -73,7 +72,7 @@ uint8_t getPhotoVal() {
 bool checkIsRaining() {
 
   pinMode(rainDigitalPin, INPUT);
-  bool isRaining = digitalRead(rainDigitalPin);
+  bool isRaining = !(digitalRead(rainDigitalPin));
 
   return isRaining; 
 }
@@ -85,18 +84,34 @@ uint16_t getRainVal() {
   return rainVal;
 }
 
-
 uint16_t getTotalFreq() {
   
-  uint16_t totalVal;
+  uint16_t totalVal, totalFreq;
   uint8_t photoVal = getPhotoVal();
   uint8_t rainVal = getRainVal();
 
   totalVal = photoVal + rainVal;
   
+  if (totalVal > 900) {
+    totalFreq = 5000;
+  }
+  else if (totalVal > 750) {
+    totalFreq = 4000;
+  }
+  else if(totalVal > 600) {
+    totalFreq = 3000;
+  }
+  else if(totalVal > 450) {
+    totalFreq = 2000; 
+  }
+  else {
+    totalFreq = 1000;
+  }
   
-  return totalVal;
+  return totalFreq;
 }
+
+
 
 
 // standard setup
@@ -142,8 +157,8 @@ void loop()
         float temp = ss.getTemp();
         uint16_t capread = ss.touchRead(0);
         
-        //Serial.print("Photocell Frequency: "); Serial.println(photoFreq);
-        //Serial.print("Rain Sensor Frequency: "); Serial.println(rainFreq);
+        //Serial.print("Photocell Frequency: "); Serial.println(getPhotoVal);
+        //Serial.print("Rain Sensor Frequency: "); Serial.println(getRainVal);
         Serial.print("Sensor "); Serial.print(x); Serial.print(" Capacitive: "); Serial.println(capread);
         Serial.print("Sensor "); Serial.print(x); Serial.print(" Temperature: "); Serial.println(temp);
     
