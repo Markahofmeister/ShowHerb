@@ -19,3 +19,9 @@ void loop() {
   Serial.println(analogValue);
   delay(500);
 }
+
+/*
+ * Sunny day outside: ~250 return 
+ * Sunny day inside, no lights: ~125 return 
+ * Night time outside: 
+ */

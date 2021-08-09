@@ -10,11 +10,17 @@
 #include "Wire.h"
 #include "Adafruit_seesaw.h"
 
+//soil sensor 
 Adafruit_seesaw ss;
 #define numSensors 1
-uint8_t pinNum;
+uint8_t relayPin = 16;
 
+//multiplexer address
 #define TCAADDR 0x70
+
+//photocell variables
+uint8_t photoValue;
+uint8_t photoPin = A0;
 
 
 //select tca port to communicate with
@@ -52,6 +58,31 @@ void findActivePorts() {
     }
 }
 
+//use photoresistor to determine water frequncy 
+uint8_t getPhotoFreq() {
+  
+  uint8_t photoFreq;
+  photoValue = analogRead(photoPin);
+
+  if (photoValue < 200 && photoValue > 150) {
+    photoFreq = 4000;
+  }
+  else if (photoValue < 150 && photoValue > 100) {
+    photoFreq = 3000;
+  }
+  else if(photoValue < 100 && photoValue > 50) {
+    photoFreq = 2000;
+  }
+  else if(photoValue < 50) {
+    photoFreq = 1000; 
+  }
+  else {
+    photoFreq = 5000;
+  }
+
+  return photoFreq;
+}
+
 
 // standard setup
 void setup() {
@@ -67,6 +98,8 @@ void setup() {
     //initialize Wire and sensor objects
     Wire.begin();
     ss.begin(0x36);
+
+    pinMode(relayPin, OUTPUT);
     
     
     Serial.println("\nTCAScanner ready.");
@@ -82,8 +115,10 @@ void setup() {
 void loop() 
 {
 
+  uint8_t photoFreq = getPhotoFreq();
+
   for (uint8_t x = 0; x <= (numSensors - 1); x++) {
-    pinNum = x + 4;
+    uint8_t pinNum = x + 4;
     digitalWrite(pinNum, HIGH);
     tcaselect(x);
 
@@ -92,7 +127,17 @@ void loop()
 
     Serial.print("Sensor "); Serial.print(x); Serial.print(" Capacitive: "); Serial.println(capread);
     Serial.print("Sensor "); Serial.print(x); Serial.print(" Temperature: "); Serial.println(temp);
-  
+
+    if(capread < 560) {
+       digitalWrite(relayPin, HIGH);
+       delay(photoFreq);
+       digitalWrite(relayPin, LOW);
+       delay(20000);
+     }else {
+       continue; 
+     }
+
+     
 
     delay(1000);
 
