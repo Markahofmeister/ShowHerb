@@ -19,8 +19,11 @@ uint8_t relayPin = 16;
 #define TCAADDR 0x70
 
 //photocell variables
-uint8_t photoValue;
 uint8_t photoPin = A0;
+
+//rain Sensor variables 
+uint8_t rainAnalogPin = A7; 
+uint8_t rainDigitalPin = 15;
 
 
 //select tca port to communicate with
@@ -47,41 +50,68 @@ void findActivePorts() {
       Serial.print("TCA Port #"); Serial.println(i);
 
       for (uint8_t addr = 0; addr <= 127; addr++) {
-        if (addr == TCAADDR) continue;
+          if (addr == TCAADDR) continue;
 
-        Wire.beginTransmission(addr);
-        if (!Wire.endTransmission()) {
-          Serial.print("Found soil sensor at 0x");  Serial.println(addr,HEX);
-        }
+          Wire.beginTransmission(addr);
+            if (!Wire.endTransmission()) {
+             Serial.print("Found soil sensor at 0x");  Serial.println(addr,HEX);
+           }
       }
       
     }
 }
 
 //use photoresistor to determine water frequncy 
-uint8_t getPhotoFreq() {
+uint8_t getPhotoVal() {
   
-  uint8_t photoFreq;
-  photoValue = analogRead(photoPin);
+  uint8_t photoVal = analogRead(photoPin);
 
-  if (photoValue < 200 && photoValue > 150) {
-    photoFreq = 4000;
+  return photoVal;
+}
+
+bool checkIsRaining() {
+
+  pinMode(rainDigitalPin, INPUT);
+  bool isRaining = !(digitalRead(rainDigitalPin));
+
+  return isRaining; 
+}
+
+uint16_t getRainVal() {
+  
+  uint16_t rainVal = analogRead(rainAnalogPin);
+
+  return rainVal;
+}
+
+uint16_t getTotalFreq() {
+  
+  uint16_t totalVal, totalFreq;
+  uint8_t photoVal = getPhotoVal();
+  uint8_t rainVal = getRainVal();
+
+  totalVal = photoVal + rainVal;
+  
+  if (totalVal > 900) {
+    totalFreq = 5000;
   }
-  else if (photoValue < 150 && photoValue > 100) {
-    photoFreq = 3000;
+  else if (totalVal > 750) {
+    totalFreq = 4000;
   }
-  else if(photoValue < 100 && photoValue > 50) {
-    photoFreq = 2000;
+  else if(totalVal > 600) {
+    totalFreq = 3000;
   }
-  else if(photoValue < 50) {
-    photoFreq = 1000; 
+  else if(totalVal > 450) {
+    totalFreq = 2000; 
   }
   else {
-    photoFreq = 5000;
+    totalFreq = 1000;
   }
-
-  return photoFreq;
+  
+  return totalFreq;
 }
+
+
 
 
 // standard setup
@@ -101,7 +131,6 @@ void setup() {
 
     pinMode(relayPin, OUTPUT);
     
-    
     Serial.println("\nTCAScanner ready.");
     Serial.println("Soil Sensor(s) ready");
 
@@ -115,31 +144,36 @@ void setup() {
 void loop() 
 {
 
-  uint8_t photoFreq = getPhotoFreq();
+  bool isRaining = checkIsRaining();
+  uint16_t totalFreq = getTotalFreq();
 
-  for (uint8_t x = 0; x <= (numSensors - 1); x++) {
-    uint8_t pinNum = x + 4;
-    digitalWrite(pinNum, HIGH);
-    tcaselect(x);
+  if(!isRaining) {
 
-    float temp = ss.getTemp();
-    uint16_t capread = ss.touchRead(0);
-
-    Serial.print("Sensor "); Serial.print(x); Serial.print(" Capacitive: "); Serial.println(capread);
-    Serial.print("Sensor "); Serial.print(x); Serial.print(" Temperature: "); Serial.println(temp);
-
-    if(capread < 560) {
-       digitalWrite(relayPin, HIGH);
-       delay(photoFreq);
-       digitalWrite(relayPin, LOW);
-       delay(20000);
-     }else {
-       continue; 
-     }
-
-     
-
-    delay(1000);
-
+      for (uint8_t x = 0; x <= (numSensors - 1); x++) {
+        uint8_t pinNum = x + 5;
+        digitalWrite(pinNum, HIGH);
+        tcaselect(x);
+    
+        float temp = ss.getTemp();
+        uint16_t capread = ss.touchRead(0);
+        
+        //Serial.print("Photocell Frequency: "); Serial.println(getPhotoVal);
+        //Serial.print("Rain Sensor Frequency: "); Serial.println(getRainVal);
+        Serial.print("Sensor "); Serial.print(x); Serial.print(" Capacitive: "); Serial.println(capread);
+        Serial.print("Sensor "); Serial.print(x); Serial.print(" Temperature: "); Serial.println(temp);
+    
+        if(capread < 560) {
+           digitalWrite(relayPin, HIGH);
+           delay(totalFreq);
+           digitalWrite(relayPin, LOW);
+           delay(20000);
+         }else {
+           continue; 
+         }
+    
+         
+        delay(5000);
+    
+      }
   }
 }
