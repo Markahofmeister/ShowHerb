@@ -62,11 +62,28 @@ void findActivePorts() {
 }
 
 //use photoresistor to determine water frequncy 
-uint8_t getPhotoVal() {
-  
-  uint8_t photoVal = analogRead(photoPin);
+uint16_t getTimeToCheck() {
 
-  return photoVal;
+  uint16_t timeToCheck; 
+  uint16_t photoVal = analogRead(photoPin);
+  
+  if (photoVal > 200) {
+    timeToCheck = 4000;
+  }
+  else if (photoVal > 150) {
+    timeToCheck = 8000;
+  }
+  else if(photoVal > 100) {
+    timeToCheck = 12000;
+  }
+  else if(photoVal > 50) {
+    timeToCheck = 16000; 
+  }
+  else {
+    timeToCheck = 20000;
+  }
+
+  return timeToCheck;
 }
 
 bool checkIsRaining() {
@@ -77,39 +94,30 @@ bool checkIsRaining() {
   return isRaining; 
 }
 
-uint16_t getRainVal() {
-  
+uint16_t getTimeToWater() {
+
+  uint16_t timeToWater;
   uint16_t rainVal = analogRead(rainAnalogPin);
+  
+  if (rainVal > 850) {
+    timeToWater = 5000;
+  }
+  else if (rainVal > 700) {
+    timeToWater = 4000;
+  }
+  else if(rainVal > 550) {
+    timeToWater = 3000;
+  }
+  else if(rainVal > 400) {
+    timeToWater = 2000; 
+  }
+  else {
+    timeToWater = 1000;
+  }
 
   return rainVal;
 }
 
-uint16_t getTotalFreq() {
-  
-  uint16_t totalVal, totalFreq;
-  uint8_t photoVal = getPhotoVal();
-  uint8_t rainVal = getRainVal();
-
-  totalVal = photoVal + rainVal;
-  
-  if (totalVal > 900) {
-    totalFreq = 5000;
-  }
-  else if (totalVal > 750) {
-    totalFreq = 4000;
-  }
-  else if(totalVal > 600) {
-    totalFreq = 3000;
-  }
-  else if(totalVal > 450) {
-    totalFreq = 2000; 
-  }
-  else {
-    totalFreq = 1000;
-  }
-  
-  return totalFreq;
-}
 
 
 
@@ -145,7 +153,8 @@ void loop()
 {
 
   bool isRaining = checkIsRaining();
-  uint16_t totalFreq = getTotalFreq();
+  uint16_t timeToWater = getTimeToWater();
+  uint16_t timeToCheck = getTimeToCheck();
 
   if(!isRaining) {
 
@@ -164,16 +173,55 @@ void loop()
     
         if(capread < 560) {
            digitalWrite(relayPin, HIGH);
-           delay(totalFreq);
+           delay(timeToWater);
            digitalWrite(relayPin, LOW);
-           delay(20000);
+           delay(10000);
          }else {
            continue; 
          }
     
          
-        delay(5000);
+        delay(timeToCheck);
     
       }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*uint16_t getTotalFreq() {
+  
+  uint16_t totalVal, totalFreq;
+  uint8_t photoVal = getPhotoVal();
+  uint8_t rainVal = getRainVal();
+
+  totalVal = photoVal + rainVal;
+  
+  if (totalVal > 900) {
+    totalFreq = 5000;
+  }
+  else if (totalVal > 750) {
+    totalFreq = 4000;
+  }
+  else if(totalVal > 600) {
+    totalFreq = 3000;
+  }
+  else if(totalVal > 450) {
+    totalFreq = 2000; 
+  }
+  else {
+    totalFreq = 1000;
+  }
+  
+  return totalFreq;
+}*/
