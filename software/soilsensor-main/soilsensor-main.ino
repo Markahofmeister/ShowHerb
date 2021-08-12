@@ -13,7 +13,7 @@
 //soil sensor 
 Adafruit_seesaw ss;
 #define numSensors 1
-uint8_t relayPin = 16;
+uint8_t relayPin = 15;
 
 //multiplexer address
 #define TCAADDR 0x70
@@ -23,7 +23,7 @@ uint8_t photoPin = A0;
 
 //rain Sensor variables 
 uint8_t rainAnalogPin = A7; 
-uint8_t rainDigitalPin = 15;
+uint8_t rainDigitalPin = 14;
 
 
 //select tca port to communicate with
