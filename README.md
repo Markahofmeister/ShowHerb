@@ -4,11 +4,7 @@ ShowHerb is an automated garden watering system. It uses Adafruit's STEMMA I2C s
 
 The control structure uses an Arduino nano, as well as a TCA I2C multiplexer to allow up to 8 sensors to be added. The electromechanical irrigation valve is controlled by a 5V relay, also controlled by the Arduino.
 
-<<<<<<< HEAD
-![](media/systemDiagrams/SystemDiagram-V5.png)
-=======
 ![](media/systemDiagrams/SystemDiagram-V7.png)
->>>>>>> light
 
 The Stemma Soil Sesors have custom 3d printed covers to protect their circuitry. Additionally, to avoid moisture damage over time, the sensors are only powered when they are being read. This is done through Arduino GPIO pins, rather than a constant +5V connection. 
 
