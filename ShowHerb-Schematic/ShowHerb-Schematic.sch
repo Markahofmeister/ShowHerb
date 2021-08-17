@@ -59,8 +59,6 @@ F 3 "https://standexelectronics.com/wp-content/uploads/datasheet_reed_relay_DIP.
 	1    8800 2650
 	-1   0    0    1   
 $EndComp
-Wire Wire Line
-	4150 2150 4150 1550
 $Comp
 L power:GNDREF #PWR?
 U 1 1 6108FD92
@@ -140,8 +138,6 @@ Wire Wire Line
 	8500 2950 8100 2950
 Wire Wire Line
 	9000 1550 9000 2350
-Wire Wire Line
-	4150 1550 9000 1550
 $Comp
 L power:+12V #PWR?
 U 1 1 6109EBB6
@@ -240,10 +236,6 @@ Wire Wire Line
 	2400 2600 2900 2600
 Wire Wire Line
 	2900 2600 2900 2000
-Wire Wire Line
-	2900 2000 4250 2000
-Wire Wire Line
-	4250 2000 4250 2150
 $Comp
 L Device:R_PHOTO PhotoResistor
 U 1 1 61127B73
@@ -293,4 +285,12 @@ Wire Bus Line
 	6100 850  6100 4800
 Text Notes 6850 2850 0    50   ~ 0
 Voltage Divider\n
+Wire Wire Line
+	4350 2000 4350 2150
+Wire Wire Line
+	4250 1550 9000 1550
+Wire Wire Line
+	4250 1550 4250 2150
+Wire Wire Line
+	2900 2000 4350 2000
 $EndSCHEMATC

@@ -28,3 +28,10 @@ void loop() {
   delay(1000); 
 
 }
+
+
+/* Analog range: 0-1024
+ *  Actually raining seems to go to the 400's or lower range
+ *  
+ *  Digital "is raining" goes low at around 360 or so, at my current sensitivity. 
+ */

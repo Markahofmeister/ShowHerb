@@ -12,8 +12,8 @@
 
 //soil sensor 
 Adafruit_seesaw ss;
-#define numSensors 1
-uint8_t relayPin = 16;
+#define numSensors 2
+uint8_t relayPin = 15;
 
 //multiplexer address
 #define TCAADDR 0x70
@@ -23,7 +23,8 @@ uint8_t photoPin = A0;
 
 //rain Sensor variables 
 uint8_t rainAnalogPin = A7; 
-uint8_t rainDigitalPin = 15;
+uint8_t rainDigitalPin = 14;
+
 
 
 //select tca port to communicate with
@@ -62,56 +63,65 @@ void findActivePorts() {
 }
 
 //use photoresistor to determine water frequncy 
-uint8_t getPhotoVal() {
-  
-  uint8_t photoVal = analogRead(photoPin);
+uint16_t getTimeToCheck() {
 
-  return photoVal;
+  uint16_t timeToCheck; 
+  uint16_t photoVal = analogRead(photoPin);
+  Serial.print("PhotoVal: "); Serial.println(photoVal);
+  
+  if (photoVal > 300) {
+    timeToCheck = 4000;
+  }
+  else if (photoVal > 200) {
+    timeToCheck = 8000;
+  }
+  else if(photoVal > 150) {
+    timeToCheck = 12000;
+  }
+  else if(photoVal > 100) {
+    timeToCheck = 16000; 
+  }
+  else {
+    timeToCheck = 20000;
+  }
+
+  return timeToCheck;
 }
 
 bool checkIsRaining() {
 
+  pinMode(rainDigitalPin, OUTPUT);
+  digitalWrite(rainDigitalPin, LOW);
   pinMode(rainDigitalPin, INPUT);
   bool isRaining = !(digitalRead(rainDigitalPin));
 
   return isRaining; 
 }
 
-uint16_t getRainVal() {
-  
+uint16_t getTimeToWater() {
+
+  uint16_t timeToWater;
   uint16_t rainVal = analogRead(rainAnalogPin);
-
-  return rainVal;
-}
-
-uint16_t getTotalFreq() {
+  Serial.print("RainVal: "); Serial.println(rainVal);
   
-  uint16_t totalVal, totalFreq;
-  uint8_t photoVal = getPhotoVal();
-  uint8_t rainVal = getRainVal();
-
-  totalVal = photoVal + rainVal;
-  
-  if (totalVal > 900) {
-    totalFreq = 5000;
+  if (rainVal > 850) {
+    timeToWater = 5000;
   }
-  else if (totalVal > 750) {
-    totalFreq = 4000;
+  else if (rainVal > 700) {
+    timeToWater = 4000;
   }
-  else if(totalVal > 600) {
-    totalFreq = 3000;
+  else if(rainVal > 550) {
+    timeToWater = 3000;
   }
-  else if(totalVal > 450) {
-    totalFreq = 2000; 
+  else if(rainVal > 400) {
+    timeToWater = 2000; 
   }
   else {
-    totalFreq = 1000;
+    timeToWater = 1000;
   }
-  
-  return totalFreq;
+
+  return timeToWater;
 }
-
-
 
 
 // standard setup
@@ -145,36 +155,91 @@ void loop()
 {
 
   bool isRaining = checkIsRaining();
-  uint16_t totalFreq = getTotalFreq();
+  uint16_t timeToWater = getTimeToWater();
+  uint16_t timeToCheck = getTimeToCheck();
+  Serial.print("Is raining: "); Serial.println(isRaining);
+  Serial.print("Time to Water: "); Serial.println(timeToWater);
+  Serial.print("Time to Check: "); Serial.println(timeToCheck);
 
   if(!isRaining) {
 
       for (uint8_t x = 0; x <= (numSensors - 1); x++) {
         uint8_t pinNum = x + 5;
         digitalWrite(pinNum, HIGH);
+        Serial.println("Sensor ON");
+        delay(100);
         tcaselect(x);
+        delay(100);
     
         float temp = ss.getTemp();
+        delay(100);
         uint16_t capread = ss.touchRead(0);
+        delay(100);
+
+        if (capread > 2500) {
+          capread = 1000;
+        }
         
         //Serial.print("Photocell Frequency: "); Serial.println(getPhotoVal);
         //Serial.print("Rain Sensor Frequency: "); Serial.println(getRainVal);
-        Serial.print("Sensor "); Serial.print(x); Serial.print(" Capacitive: "); Serial.println(capread);
-        Serial.print("Sensor "); Serial.print(x); Serial.print(" Temperature: "); Serial.println(temp);
+        Serial.print("Sensor "); Serial.print(x + 1); Serial.print(" Capacitive: "); Serial.println(capread);
+        Serial.print("Sensor "); Serial.print(x + 1); Serial.print(" Temperature: "); Serial.println(temp);
     
-        if(capread < 560) {
+        if(capread < 1200) {
            digitalWrite(relayPin, HIGH);
-           delay(totalFreq);
+           Serial.println("Valve Open");
+           delay(timeToWater);
            digitalWrite(relayPin, LOW);
-           delay(20000);
+           Serial.println("Valve Closed");
+           delay(10000);
          }else {
-           continue; 
+           //continue; 
          }
     
-         
-    
-        delay(5000);
+        digitalWrite(pinNum, LOW);
+        Serial.println("Sensor OFF");
+        delay(timeToCheck);
     
       }
-  }
+   }
+   delay(1000);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*uint16_t getTotalFreq() {
+  
+  uint16_t totalVal, totalFreq;
+  uint8_t photoVal = getPhotoVal();
+  uint8_t rainVal = getRainVal();
+
+  totalVal = photoVal + rainVal;
+  
+  if (totalVal > 900) {
+    totalFreq = 5000;
+  }
+  else if (totalVal > 750) {
+    totalFreq = 4000;
+  }
+  else if(totalVal > 600) {
+    totalFreq = 3000;
+  }
+  else if(totalVal > 450) {
+    totalFreq = 2000; 
+  }
+  else {
+    totalFreq = 1000;
+  }
+  
+  return totalFreq;
+}*/
