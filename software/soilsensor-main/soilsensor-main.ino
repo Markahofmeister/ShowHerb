@@ -137,7 +137,7 @@ void setup() {
 
     //initialize Wire and sensor objects
     Wire.begin();
-    ss.begin(0x36);
+    
 
     pinMode(relayPin, OUTPUT);
     
@@ -164,6 +164,7 @@ void loop()
   if(!isRaining) {
 
       for (uint8_t x = 0; x <= (numSensors - 1); x++) {
+        ss.begin(0x36);
         uint8_t pinNum = x + 5;
         digitalWrite(pinNum, HIGH);
         Serial.println("Sensor ON");
