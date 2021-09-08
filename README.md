@@ -16,5 +16,5 @@ The control box houses the nano, I2C multiplexer, relay, and solderable breadboa
 - Customized ventilation dimensions & placement 
 - compact & clean organization of components + wiring
 
-Further details are available on my website [here.]()
+Further details are available on my website [here.](https://www.markhofmeister.com/showherb)
 
