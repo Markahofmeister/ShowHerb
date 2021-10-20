@@ -6,12 +6,12 @@ The control structure uses an Arduino nano, as well as a TCA I2C multiplexer to 
 
 ## System Diagram: 
 
-![](media/systemDiagrams/SystemDiagram-V7.png)
+![](media/system-diagrams/SystemDiagram-V7.png)
 
 
 ## Code Structure: 
 
-![](media/flowsheets/FlowSheet-v1.png)
+![](media/flowcharts/FlowSheet-v1.png)
 
 The Stemma Soil Sesors have custom 3d printed covers to protect their circuitry. Additionally, the control box is custom 3D printed to allow for clean and precise wiring organization, as are the peripheral sensor housings.
 
